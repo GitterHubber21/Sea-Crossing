@@ -1,3 +1,5 @@
+The README and comments in the code were written with the help of AI.
+
 # Shark Escape Game
 
 Welcome to **Shark Escape Game**! 🦈 Your objective is to navigate your character, avoid the sharks, and get to the golden line.
