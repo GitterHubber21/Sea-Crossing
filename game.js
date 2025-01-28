@@ -1,51 +1,49 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// Set canvas dimensions to full window
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Variables
 let fish = { x: canvas.width / 2, y: canvas.height - 50, width: 20, height: 60, speed: 3.5 };
 let fishNotInvincible = false;
 let sharks = [];
 let plants = [];
 let fishDirection = { x: 0, y: 0 };
 const sharkSpeed = 3.5;
-const sharkRows = 6; // Number of rows of sharks
-const sharksPerRow = 4; // Number of sharks in each row
-const keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, ArrowDown: false };
+const sharkRows =4;
+const sharksPerRow = 2;
+let keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, ArrowDown: false };
 let gameOver = false;
-let winLine = { x: Math.random() * (canvas.width - 10), width: 80, height: 10 }; // Initialize win line
+let winLine = { x: Math.random() * (canvas.width - 10), width: 80, height: 10 };
 
-// Color palette for plants
 const plantColors = ['#34eb43', '#34c6eb', '#eb34e2', '#f5eb34', '#eb6e34'];
 
-// Create animated sea plants
+let level = 0;
+const sharksPerLevel = 2;
+
+let levelDisplay = { x: -100, y: 50, width: 100, height: 50, speed: 2 };
+
 function createPlant(x, y, height, swaySpeed) {
     plants.push({ x, y, height, swayOffset: Math.random() * Math.PI * 2, swaySpeed, color: '#34eb43' });
 }
 
-// Create pixel-art sharks
 function createSharks() {
     for (let i = 0; i < sharkRows; i++) {
-        for (let j = 0; j < sharksPerRow; j++) {
+        for (let j = 0; j < sharksPerRow + level * sharksPerLevel; j++) {
             const shark = {
-                x: Math.random() * canvas.width, // Random horizontal position
-                y: (canvas.height / sharkRows) * i + 50, // Positioned in rows
+                x: Math.random() * canvas.width,
+                y: (canvas.height / sharkRows) * i + 50,
                 width: 40,
                 height: 20,
-                speed: -sharkSpeed * (Math.random() * 1.5 + 0.5), // Negative speed to move left
-                verticalOffset: Math.random() * Math.PI * 2, // Random vertical starting offset
-                verticalSpeed: Math.random() * 0.05 + 0.01, // Random vertical speed
+                speed: -sharkSpeed * (Math.random() * 1.5 + 0.5),
+                verticalOffset: Math.random() * Math.PI * 2,
+                verticalSpeed: Math.random() * 0.05 + 0.01,
             };
             sharks.push(shark);
         }
     }
 }
 
-// Draw the fish
-// Draw the fish as a pixel-art clownfish
 function drawFish() {
     const fishPixels = [
         [0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
@@ -61,16 +59,16 @@ function drawFish() {
         
     ];
 
-    const pixelSize = 5; // Size of each pixel
+    const pixelSize = 5;
 
     fishPixels.forEach((row, rowIndex) => {
         row.forEach((pixel, colIndex) => {
-            if (pixel === 0) return; // Transparent
-            if (pixel === 1) ctx.fillStyle = '#FF6F00'; // Orange
-            if (pixel === 2) ctx.fillStyle = '#000000'; // Black stripe
-            if (pixel === 3) ctx.fillStyle = '#FFFFFF'; // White stripe
-            if (pixel === 4) ctx.fillStyle = '#FF8C00'; // Shadow orange
-            if (pixel === 5) ctx.fillStyle = '#FFD700'; // Highlight orange
+            if (pixel === 0) return;
+            if (pixel === 1) ctx.fillStyle = '#FF6F00';
+            if (pixel === 2) ctx.fillStyle = '#000000';
+            if (pixel === 3) ctx.fillStyle = '#FFFFFF';
+            if (pixel === 4) ctx.fillStyle = '#FF8C00';
+            if (pixel === 5) ctx.fillStyle = '#FFD700';
 
             ctx.fillRect(
                 fish.x + colIndex * pixelSize,
@@ -82,14 +80,11 @@ function drawFish() {
     });
 }
 
-
-// Draw the win line
 function drawWinLine() {
-    ctx.fillStyle = '#FFD700'; // Gold color for the win line
+    ctx.fillStyle = '#FFD700';
     ctx.fillRect(winLine.x, 0, winLine.width, winLine.height);
 }
 
-// Shark pixel art definition
 function drawShark(x, y) {
     const sharkPixels = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -111,41 +106,37 @@ function drawShark(x, y) {
         [0, 0, 0, 0, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1, 4, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0]
       ];
-
-    const pixelSize = 3; // Size of each pixel
+    const pixelSize = 3;
 
     sharkPixels.forEach((row, rowIndex) => {
         row.forEach((pixel, colIndex) => {
-            if (pixel === 0) return; // Empty space
-            if (pixel === 1) ctx.fillStyle = '#4B89FF'; // Shark body color
-            if (pixel === 2) ctx.fillStyle = '#FFFFFF'; // Shark belly color
-            if (pixel === 3) ctx.fillStyle = '#ee2a2a'; // Shark mouth color
-            if (pixel === 4) ctx.fillStyle = '#000000'; // Outline color
+            if (pixel === 0) return;
+            if (pixel === 1) ctx.fillStyle = '#4B89FF';
+            if (pixel === 2) ctx.fillStyle = '#FFFFFF';
+            if (pixel === 3) ctx.fillStyle = '#ee2a2a';
+            if (pixel === 4) ctx.fillStyle = '#000000';
 
             ctx.fillRect(x + colIndex * pixelSize, y + rowIndex * pixelSize, pixelSize, pixelSize);
         });
     });
 }
 
-// Draw all sharks
 function drawSharks() {
     sharks.forEach(shark => {
         drawShark(shark.x, shark.y, shark.direction);
     });
 }
 
-// Draw the plants
 function drawPlants() {
     plants.forEach(plant => {
         const sway = Math.sin(Date.now() / 1000 * plant.swaySpeed + plant.swayOffset) * 5;
         ctx.fillStyle = plant.color;
         for (let i = 0; i < plant.height; i++) {
-            ctx.fillRect(plant.x + sway, plant.y - i * 10, 10, 10); // Thicker and taller plants
+            ctx.fillRect(plant.x + sway, plant.y - i * 10, 10, 10);
         }
     });
 }
 
-// Move the sharks
 function moveSharks() {
     sharks.forEach(shark => {
         shark.x += shark.speed;
@@ -163,37 +154,58 @@ function moveSharks() {
     });
 }
 
-// Check collisions
+function drawLevelDisplay() {
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '30px Arial';
+    ctx.fillText(`Level: ${level + 1}`, levelDisplay.x, levelDisplay.y);
+}
+
+function updateLevelDisplay() {
+    levelDisplay.x += levelDisplay.speed;
+    if (levelDisplay.x > canvas.width) {
+        levelDisplay.x = -100;
+    }
+}
+
+function resetLevelDisplay() {
+    levelDisplay.x = -100;
+}
+
 function checkCollisions() {
     sharks.forEach(shark => {
         if (
             fish.x < shark.x + 40 &&
             fish.x + fish.width > shark.x &&
             fish.y < shark.y + 40 &&
-            fish.y + fish.height > shark.y&&
+            fish.y + fish.height > shark.y &&
             fishNotInvincible
         ) {
             document.getElementById('endMenu2').style.display = 'flex';
-            fishNotInvincible=false
+            fishNotInvincible = false;
             gameOver = true;
+            level = 0;
         }
     });
 
-    // Check if the fish touches the win line
     if (
         fish.y <= winLine.height &&
         fish.x < winLine.x + winLine.width &&
         fish.x + fish.width > winLine.x
     ) {
-        document.getElementById('endMenu').style.display = 'flex';
-        fishNotInvincible=false
-        gameOver = true;
+        level++;
+        if (level < 5) {
+            createSharks();
+            resetGame();
+            resetLevelDisplay();
+        } else {
+            document.getElementById('victoryMessage').style.display = 'flex';
+            gameOver = true;
+        }
     }
 }
 
 let stones = [];
 
-// Create stone objects to fill the bottom of the screen
 function createStones() {
     const stoneWidth = 40;
     const stoneHeight = 20;
@@ -202,57 +214,48 @@ function createStones() {
     }
 }
 
-// Draw all the stones at the bottom of the screen
 function drawStones() {
     stones.forEach(stone => {
-        ctx.fillStyle = '#A9A9A9'; // Grey color for stones
+        ctx.fillStyle = '#A9A9A9';
         ctx.fillRect(stone.x, stone.y, stone.width, stone.height);
     });
 }
 
-// Move the fish
 function moveFish() {
-    // Update fish position based on current direction
     fish.x += fish.speed * fishDirection.x;
     fish.y += fish.speed * fishDirection.y;
 
-    // Prevent fish from moving outside the canvas boundaries
     fish.x = Math.max(0, Math.min(fish.x, canvas.width - fish.width));
-    
-    // Prevent fish from moving below the top of the stones
+
     const stoneTop = canvas.height - stones[0].height;
     fish.y = Math.max(0, Math.min(fish.y, stoneTop - fish.height));
 }
 
-// Game loop
 function gameLoop() {
     if (gameOver) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw elements
     drawPlants();
     drawSharks();
     drawFish();
     drawStones();
     drawWinLine();
+    drawLevelDisplay();
 
-    // Move elements
     moveSharks();
     moveFish();
+    updateLevelDisplay();
 
-    // Check collisions
     checkCollisions();
 
     requestAnimationFrame(gameLoop);
 }
 
-// Event listeners
 window.addEventListener('keydown', e => {
     if (keys.hasOwnProperty(e.key)&&fishNotInvincible) {
         keys[e.key] = true;
 
-        // Change fish's direction based on key pressed
         if (e.key === 'ArrowLeft') fishDirection = { x: -1, y: 0 };
         if (e.key === 'ArrowRight') fishDirection = { x: 1, y: 0 };
         if (e.key === 'ArrowUp') fishDirection = { x: 0, y: -1 };
@@ -265,7 +268,6 @@ window.addEventListener('keyup', e => {
     if (keys.hasOwnProperty(e.key)) keys[e.key] = false;
 });
 
-// Initialize game
 createSharks();
 createStones();
 
@@ -278,44 +280,38 @@ for (let i = 0; i < 50; i++) {
     );
 }
 function startGame() {
-    startMenu.style.display = 'none'; // Hide the start menu when the game starts
+    startMenu.style.display = 'none';
     fishNotInvincible=true
 }
 function restartGame() {
-    endMenu.style.display = 'none'; // Hide the end menu
+    endMenu.style.display = 'none';
     
-    resetGame(); // Reset game elements
-    gameLoop(); // Start the game loop again
+    resetGame();
+    gameLoop();
 }
 function restartGame2() {
-    endMenu2.style.display = 'none'; // Hide the end menu
+    endMenu2.style.display = 'none';
     
-    resetGame(); // Reset game elements
-    gameLoop(); // Start the game loop again
+    resetGame();
+    gameLoop();
 }
 function resetGame() {
-    // Reset fish properties
     fish = { x: canvas.width / 2, y: canvas.height - 60, width: 20, height: 60, speed: 4 };
     fishDirection = { x: 0, y: 0 };
-    // Clear previous obstacles (sharks, stones, plants)
     sharks = [];
     stones = [];
     plants = [];
     
-    // Create new obstacles for the restart
     createSharks();
     createStones();
     for (let i = 0; i < 50; i++) {
         createPlant(Math.random() * canvas.width, canvas.height - 10, Math.random() * 15 + 10, Math.random() * 2 + 1);
     }
 
-    // Reset the game over flag
     gameOver = false;
-    fishNotInvincible=true;
+    fishNotInvincible = true;
 
-    // Show the start menu if needed (or reset to initial state)
-    
-    endMenu.style.display = 'none'; // Ensure the end menu is hidden
+    endMenu.style.display = 'none';
 }
 
 gameLoop();
