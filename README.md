@@ -4,7 +4,7 @@ Welcome to **Shark Escape Game**!Your objective is to navigate your character, a
 
 ---
 
-##How to Play
+## How to Play
 
 Use the arrow keys to navigate the fish.  
 You need to complete five levels to complete the game.
