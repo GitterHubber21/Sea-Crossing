@@ -1,23 +1,19 @@
-The README and comments in the code were written with the help of AI.
-
 # Shark Escape Game
 
-Welcome to **Shark Escape Game**! 🦈 Your objective is to navigate your character, avoid the sharks, and get to the golden line.
+Welcome to **Shark Escape Game**!Your objective is to navigate your character, avoid the sharks, and get to the golden line.
 
 ---
 
-## 🎮 How to Play
+##How to Play
 
-- Use arrow keys (`↑`, `↓`, `←`, `→`) to navigate your character.
-- Dodge the sharks as they move around.
-- Reach the golden line to win the game.
-- If you touch a shark, you lose!
+Use the arrow keys to navigate the fish.  
+You need to complete five levels to complete the game.
 
 ---
 
-## 🚀 Features
+## Features
 
-- Dynamic shark movements to keep the game challenging.
+The number of sharks gets higher with every level so watch out!
 
 
 ---
